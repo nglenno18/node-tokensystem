@@ -1,24 +1,5 @@
 var mongoose = require('mongoose');
 var {ObjectID} = require('mongodb');
-<<<<<<< HEAD
-// const validator = require('validator');
-
-var ModeledUser = new mongoose.Schema({
-  // email: {
-  //   type: String,
-  //   required: true,
-  //   trim: true,
-  //   minlength: 1,
-  //   unique: true,
-  //   validate: {
-  //     validator: validator.isEmail,
-  //     message: `{VALUE} is not a valid email `
-  //   }
-  // },
-  id: {
-    type: String,
-    unique: true
-=======
 const validator = require('validator');
 
 var ModeledUser = new mongoose.Schema({
@@ -32,23 +13,23 @@ var ModeledUser = new mongoose.Schema({
       validator: validator.isEmail,
       message: `{VALUE} is not a valid email `
     }
->>>>>>> 9cdab7a9e474982643d2b4ce4ed3988d4642be11
   },
-  displayName: {
+  password:{
     type: String,
-    required: true,
-    trim: true,
-<<<<<<< HEAD
-    minlength: 1,
-    unique: true
+    require: true,
+    minLength: 5
   },
+  tokens: [{
+    access: {
+      type: String,
+      required: true
+    },
+    token: {
+      type: String,
+      required: true
+    }
+  }],
   rooms: [{type:String, unique: true}],
-  messages: []
-=======
-    minlength: 1
-  },
-  rooms: [{type: mongoose.Schema.Types.ObjectId, unique: true}]
->>>>>>> 9cdab7a9e474982643d2b4ce4ed3988d4642be11
 });
 
 ModeledUser.methods.toJSON = function(){
