@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
@@ -8,5 +7,17 @@
 
 <body>
   <p>If you're here, I'm not sure why. I'm just practicing implementing web tokens</p>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+
+    socket.on('connect', ()=>{
+      console.log('Connected to the SERVER');
+    });
+    socket.on('disconnect', ()=>{
+      console.log('Disconnected from the SERVER');
+    });
+  </script>
 </body>
 </html>
