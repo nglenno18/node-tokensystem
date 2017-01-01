@@ -23,9 +23,19 @@ jQuery('#login-form').on('submit', function(e){
     password: jQuery('[name=password]').val()
   };
 
-  socket.emit('validateUser', params, function(err, ree){    //add the acknowledgement
-    console.log('\n\nacknowledgement', ree);
-    if(err){
+  socket.emit('validateUser', params, function(err){    //add the acknowledgement
+    if(err === 'Next') return window.location.href = '/joinRoom';
+    if(err ==='ADD'){
+      if(confirm(`Register new Email ${params.email}?`)){
+        // window.location.href = '/register';
+        console.log('Socket will emit "registerUser"');
+        socket.emit('registerUser', params, function(es){
+          console.log('Returned from addUser in server to client:', es);
+          window.location.href = '/registerUser';
+        });
+      }
+      else window.location.href ='/';
+    }else{
       console.log('callback was called', err);
       alert(err);
       window.location.href ='/';

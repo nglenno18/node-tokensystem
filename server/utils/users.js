@@ -12,6 +12,23 @@ class Users {
     console.log('No... no its not. \n\t ...like not at all');
     return false;
   }
+
+  emailExists(em){
+    var result = User.findOne({email:em});
+    return result.then((docs)=>{
+      if(!docs) return false;
+      console.log('Email match was found!');
+      return true;
+    });
+  }
+
+  addUser(email, password){
+    var newUser = new User({email, password}).save();
+    return newUser.then((saved)=>{
+      console.log('\nfromAddUserMethod:: \t', saved);
+      return saved;
+    });
+  }
 }
 
 module.exports = {Users};

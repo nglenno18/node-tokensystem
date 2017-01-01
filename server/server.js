@@ -29,8 +29,17 @@ io.on('connection', (socket)=>{
       console.log('ALERT USER to retry email request');
       return callback('INVALID EMAIL REQUEST');
     }
-    return callback('INVALID EMAIL REQUEST');
+    users.emailExists(em).then((docs)=>{
+      if(docs === false) return callback('ADD');
+      return callback('Next')
+    })
+    // if(users.emailExists(em) === false) return callback(`Register new Email ${em}?`);
 
+  });
+  socket.on('registerUser', function(params, callback){
+    console.log('...Client --> Server addUser...');
+    var email = params.email.toUpperCase();
+    users.addUser(email, params.password);
   });
 
   socket.on('disconnect', ()=>{
