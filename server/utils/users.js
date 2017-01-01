@@ -22,13 +22,25 @@ class Users {
     });
   }
 
+  // addUser(email, password){
+  //   var newUser = new User({email, password}).save();
+  //   return newUser.then((saved)=>{
+  //     console.log('\nfromAddUserMethod:: \t', saved);
+  //     return saved;
+  //   });
+  // }
   addUser(email, password){
     var newUser = new User({email, password}).save();
     return newUser.then((saved)=>{
       console.log('\nfromAddUserMethod:: \t', saved);
-      return saved;
+      console.log('generate a token for the new user');
+      return saved.generateToken();
+    }).then((token)=>{
+      console.log('token', token);
+
     });
   }
+
 }
 
 module.exports = {Users};

@@ -39,7 +39,7 @@ io.on('connection', (socket)=>{
   socket.on('registerUser', function(params, callback){
     console.log('...Client --> Server addUser...');
     var email = params.email.toUpperCase();
-    users.addUser(email, params.password);
+    var newUser = users.addUser(email, params.password);
   });
 
   socket.on('disconnect', ()=>{

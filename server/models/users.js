@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 var {ObjectID} = require('mongodb');
+const _ = require('lodash');
 const validator = require('validator');
+const jwt = require('jsonwebtoken');
 
 var ModeledUser = new mongoose.Schema({
   email: {
@@ -37,7 +39,20 @@ ModeledUser.methods.toJSON = function(){
   var userObject = user.toObject();
 
   //import lodash --> need to use pick method to pick which data is returned to user
-  return userObject;
+  return _.pick(userObject, ['_id', 'email']);
+};
+ModeledUser.methods.generateToken = function(){
+  var user = this;
+
+  var access = 'auth';
+  //generate token
+  var token = jwt.sign({_id:user._id.toHexString(), access}, 'myMiddleName').toString();
+  //update array
+  user.tokens.push({access, token});
+  return user.save().then(()=>{ //returning a value as success arg for the next then call
+    return token;
+  });
+  //in server--> .then((token)=>{})
 };
   // var access = 'auth';
   // var token = jwt.sign(
