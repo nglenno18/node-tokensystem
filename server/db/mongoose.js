@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/jwtPlayground');
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/jwtPlayground');
 
 module.exports = {mongoose};
