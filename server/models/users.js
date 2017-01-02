@@ -91,6 +91,9 @@ ModeledUser.pre('save',function(next){
     next();
   }
 });
+ModeledUser.post('save', function(docs){
+  console.log('User has been successfully saved', docs);
+})
 
 var User = mongoose.model('User', ModeledUser);
 

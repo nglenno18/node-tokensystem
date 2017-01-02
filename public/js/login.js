@@ -27,7 +27,7 @@ jQuery('#login-form').on('submit', function(e){
   socket.emit('validateUser', params, function(err){    //add the acknowledgement
     if(!err){
       console.log('User validated: ');
-      return window.location.href = '/joinRoom';
+      return window.location.href = '/join.html';
     }
     if(err ==='ADD'){
       if(confirm(`Register new Email ${params.email}?`)){

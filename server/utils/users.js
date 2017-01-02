@@ -21,7 +21,14 @@ class Users {
       return docs;
     });
   }
-
+  getAccounts(){
+    var result = User.find({});
+    return result.then((docs)=>{
+      if(!docs) return 'User DB is empty(no emails)'
+      console.log('Emails were found', docs);
+      return docs;
+    });
+  }
 
   addUser(email, password){
     var newUser = new User({email, password}).save();

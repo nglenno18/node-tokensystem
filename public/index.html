@@ -7,25 +7,27 @@
 
 <body>
   <p>If you're here, I'm not sure why. I'm just practicing implementing web tokens</p>
-  <form id= "login-form">
-    <div class="form-field">
-      <h3>Email Credentials</h3>
-    </div>
-    <div class="form-field">
-      <label>Email</label>
-      <input type="text" name="email" autofocus/>
-    </div>
-    <div class="form-field">
-      <label>Password</label>
-      <input id="password-text" type="password" name="password"/>
-    </div>
-    <div class="form-field">
-      <button>LOGIN</button>
-    </div>
-  </form>
-  <form id="register-form">
-    <button>REGISTER (New User)</button>
-  </form>
+  <div class="centered-form__form">
+    <form id= "login-form" action="/join.html">
+      <div class="form-field">
+        <h3>Email Credentials</h3>
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input type="text" name="email" autofocus/>
+      </div>
+      <div class="form-field">
+        <label>Password</label>
+        <input id="password-text" type="password" name="password"/>
+      </div>
+      <div class="form-field">
+        <button>LOGIN</button>
+      </div>
+    </form>
+    <form id="register-form" action = "/register.html">
+      <button>REGISTER (New User)</button>
+    </form>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src = "/js/libs/jquery-3.1.1.min.js"></script>
   <script src = "/js/login.js">

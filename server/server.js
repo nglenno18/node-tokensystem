@@ -21,6 +21,21 @@ var io = socketIO(server);
 
 app.use(express.static(publicPath));
 
+app.get('/accounts', function(request, response){
+  console.log('APP. GET /accounts route: ');
+  // console.log('[request] = ', request);
+  // console.log('[response] = ', response);
+  users.getAccounts().then((d)=>{
+    return response.send(d);
+  });
+  // response.render('/register.html');
+});
+app.get('/joinRoom', function(request, response){
+  console.log('APP. GET /accounts route: ');
+  // console.log('[request] = ', request);
+  // console.log('[response] = ', response);
+
+});
 io.on('connection', (socket)=>{
   console.log(`New user connected:  \n\t(socket.id):${socket.id}\n`);
 
