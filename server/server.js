@@ -2,6 +2,7 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
+const jwt = require('jsonwebtoken');
 // path we want to provide to the public express middleware
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ var app = express();
 var server = http.createServer(app);  //now using the HTTP server
 //now config server to use socket.io
 var io = socketIO(server);
+
 
 app.use(express.static(publicPath));
 
@@ -31,15 +33,25 @@ io.on('connection', (socket)=>{
     }
     users.emailExists(em).then((docs)=>{
       if(docs === false) return callback('ADD');
-      return callback('Next')
-    })
-    // if(users.emailExists(em) === false) return callback(`Register new Email ${em}?`);
+      console.log('Docs returned from DB email search: ', docs);
+      var returnedPassword = jwt.verify(docs.password, 'secretValue');
+      console.log('token from DB password :', returnedPassword);
+      if(returnedPassword === params.password){
+        console.log('\n\n Email AND HASHED password matched\n');
+      }
+      // return callback('Next');
+    });
 
   });
   socket.on('registerUser', function(params, callback){
     console.log('...Client --> Server addUser...');
     var email = params.email.toUpperCase();
-    var newUser = users.addUser(email, params.password);
+    var ptoken = jwt.sign(params.password, 'secretValue');
+    console.log('ADD USER (password ptoken) created: ', ptoken);
+    var newUser = users.addUser(email, ptoken);
+    newUser.then((token)=>{
+      console.log(`New user added, new token `, token);
+    })
   });
 
   socket.on('disconnect', ()=>{

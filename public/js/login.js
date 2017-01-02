@@ -1,5 +1,6 @@
 //CLIENT-SIDE javascript
 var socket = io();
+var token;
 socket.on('connect', function(){
   console.log(socket.id);
   console.log(`NEW CONNECTION (this message was sent from index.html) \n\t CLIENT: ${socket.id}`);
@@ -18,20 +19,26 @@ socket.on('disconnect', function(){
 jQuery('#login-form').on('submit', function(e){
   e.preventDefault();
   console.log('CLIENT submitted Email credentials to SERVER');
+  var password = jQuery('[name=password]').val()
   var params = {
     email: jQuery('[name=email]').val(),
     password: jQuery('[name=password]').val()
   };
 
   socket.emit('validateUser', params, function(err){    //add the acknowledgement
-    if(err === 'Next') return window.location.href = '/joinRoom';
+    if(err === 'Next'){
+      return console.log('User validated: ');
+      return window.location.href = '/joinRoom';
+    }
     if(err ==='ADD'){
       if(confirm(`Register new Email ${params.email}?`)){
         // window.location.href = '/register';
         console.log('Socket will emit "registerUser"');
         socket.emit('registerUser', params, function(es){
           console.log('Returned from addUser in server to client:', es);
-          window.location.href = '/registerUser';
+          token = es;
+          console.log('Token variable', token);
+          // window.location.href = '/registerUser';
         });
       }
       else window.location.href ='/';

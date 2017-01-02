@@ -17,29 +17,30 @@ class Users {
     var result = User.findOne({email:em});
     return result.then((docs)=>{
       if(!docs) return false;
-      console.log('Email match was found!');
-      return true;
+      console.log('Email match was found!', docs);
+      return docs;
     });
   }
 
-  // addUser(email, password){
-  //   var newUser = new User({email, password}).save();
-  //   return newUser.then((saved)=>{
-  //     console.log('\nfromAddUserMethod:: \t', saved);
-  //     return saved;
-  //   });
-  // }
+
   addUser(email, password){
     var newUser = new User({email, password}).save();
     return newUser.then((saved)=>{
       console.log('\nfromAddUserMethod:: \t', saved);
-      console.log('generate a token for the new user');
-      return saved.generateToken();
-    }).then((token)=>{
-      console.log('token', token);
-
+      return saved;
     });
   }
+  // addUser(email, password){
+  //   var newUser = new User({email, password}).save();
+  //   return newUser.then((saved)=>{
+  //     console.log('\nfromAddUserMethod:: \t', saved);
+  //     console.log('generate a token for the new user');
+  //     return saved.generateToken();
+  //   }).then((token)=>{
+  //     console.log('token', token);
+  //     return token;
+  //   });
+  // }
 
 }
 

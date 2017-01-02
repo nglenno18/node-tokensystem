@@ -46,13 +46,29 @@ ModeledUser.methods.generateToken = function(){
 
   var access = 'auth';
   //generate token
-  var token = jwt.sign({_id:user._id.toHexString(), access}, 'myMiddleName').toString();
+  var token = jwt.sign({_id:user._id.toHexString(), access}, 'secretssecrets').toString();
   //update array
   user.tokens.push({access, token});
   return user.save().then(()=>{ //returning a value as success arg for the next then call
     return token;
   });
   //in server--> .then((token)=>{})
+};
+
+ModeledUser.statics.findByToken = function(token){
+  var User = this;
+  var decoded;
+
+  try{
+    decoded = jwt.verify(token, 'secretssecrets');
+  }catch(e){
+    return Promise.reject();
+  }
+  return User.findOne({
+    _id: decoded._id,
+    'tokens.token':token,
+    'tokens.access': 'auth'
+  });
 };
   // var access = 'auth';
   // var token = jwt.sign(
