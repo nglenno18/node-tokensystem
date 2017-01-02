@@ -1,6 +1,5 @@
 //CLIENT-SIDE javascript
 var socket = io();
-var token;
 socket.on('connect', function(){
   console.log(socket.id);
   console.log(`NEW CONNECTION (this message was sent from index.html) \n\t CLIENT: ${socket.id}`);
@@ -51,4 +50,12 @@ jQuery('#login-form').on('submit', function(e){
       window.location.href ='/';
     }
   });
+});
+
+jQuery('#register-form').on('submit', function(e){
+  e.preventDefault();
+  var email = jQuery('[name=email]').val();
+  var password = jQuery('[name=password]').val();
+  var params = {email, password};
+  window.location.href = '/register';
 });

@@ -64,7 +64,7 @@ io.on('connection', (socket)=>{
     newUser.then((token)=>{
       console.log(`New user added, new token `, token);
       callback(token);
-    })
+    });
   });
 
   socket.on('disconnect', ()=>{
