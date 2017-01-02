@@ -26,18 +26,21 @@ jQuery('#login-form').on('submit', function(e){
   };
 
   socket.emit('validateUser', params, function(err){    //add the acknowledgement
-    if(err === 'Next'){
-      return console.log('User validated: ');
+    if(!err){
+      console.log('User validated: ');
       return window.location.href = '/joinRoom';
     }
     if(err ==='ADD'){
       if(confirm(`Register new Email ${params.email}?`)){
         // window.location.href = '/register';
         console.log('Socket will emit "registerUser"');
+        var pconfirm = prompt('Please retype password: ');
+        if(pconfirm != params.password){
+          alert('Passwords DO NOT MATCH!, please try again');
+          return window.location.href = '/';
+        }
         socket.emit('registerUser', params, function(es){
           console.log('Returned from addUser in server to client:', es);
-          token = es;
-          console.log('Token variable', token);
           // window.location.href = '/registerUser';
         });
       }

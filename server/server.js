@@ -35,17 +35,21 @@ io.on('connection', (socket)=>{
     users.emailExists(em).then((docs)=>{
       if(docs === false) return callback('ADD');
       console.log('Docs returned from DB email search: ', docs);
-      // var returnedPassword = jwt.verify(docs.password, 'secretValue');
-      // console.log('token from DB password :', returnedPassword);
 
       var returnedPassword = docs.password;
       bcrypt.compare(params.password, docs.password, (err, result)=>{
         console.log('\n\n\nResult of comparing password: ', result);
-        if(result) console.log('\n\n Email AND HASHED password matched\n');
+        if(result){
+          console.log('\n\n Email AND HASHED password matched\n');
+          callback();
+        }
       });
-      if(returnedPassword === params.password){
-        console.log('\n\n Email AND HASHED password matched\n');
-      }
+
+      // var returnedPassword = jwt.verify(docs.password, 'secretValue');
+      // console.log('token from DB password :', returnedPassword);
+      // if(returnedPassword === params.password){
+      //   console.log('\n\n Email AND HASHED password matched\n');
+      // }
       // return callback('Next');
     });
 
@@ -59,6 +63,7 @@ io.on('connection', (socket)=>{
     var newUser = users.addUser(email, ptoken);
     newUser.then((token)=>{
       console.log(`New user added, new token `, token);
+      callback(token);
     })
   });
 
