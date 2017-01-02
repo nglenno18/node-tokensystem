@@ -32,9 +32,23 @@ const {SHA256} = require('crypto-js');
 // }
 
 //WITH WEBTOKEN MODULE::
-const jwt = require('jsonwebtoken');
-var data = {id:10};
-var token = jwt.sign(data, 'saltysecret');
-console.log('Token HASHED: \n\t', token);
-var decoded = jwt.verify(token, 'saltysecret');
-console.log('Decoded token: ', decoded);
+// const jwt = require('jsonwebtoken');
+// var data = {id:10};
+// var token = jwt.sign(data, 'saltysecret');
+// console.log('Token HASHED: \n\t', token);
+// var decoded = jwt.verify(token, 'saltysecret');
+// console.log('Decoded token: ', decoded);
+
+//WITH BCRYPT
+const bcrypt = require('bcryptjs');
+var password = '123abc!';
+var hashedPassword = '$2a$10$B9CHjF/jKwk8ajSrum2hzO6cT0nhHNZ9JypaXrcoka6anqArSBGK2';
+bcrypt.genSalt(10, (error, salt)=>{
+  bcrypt.hash(password, salt, (err, hash)=>{
+    console.log('Hashed password: ', hash);
+  });
+});
+
+bcrypt.compare(password, hashedPassword, (err, result)=>{
+  console.log('Result of comparing password: ', result);
+})

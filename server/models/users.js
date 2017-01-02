@@ -3,6 +3,7 @@ var {ObjectID} = require('mongodb');
 const _ = require('lodash');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 var ModeledUser = new mongoose.Schema({
   email: {
@@ -70,40 +71,26 @@ ModeledUser.statics.findByToken = function(token){
     'tokens.access': 'auth'
   });
 };
-  // var access = 'auth';
-  // var token = jwt.sign(
-  //   {_id: user._id.toHexString(), access},
-  //   // 'secretValue').toString();
-  //   process.env.JWT_SECRET).toString();
-  //
-  // user.tokens.push({access, token});
-  //
-  // return user.save().then(function(){
-  //   return token;
-  // });
 
-  // ModeledUser.methods.joinRoom = function(roomId){
-  //   var user = this;
-  //
-  //
-  // };
-
-  // ModeledUser.methods.addRoom = function(roomId){
-  //   //remove any object that has the tokenToDelete value we passed in
-  //     //use MongoDB operator $pull
-  //   var user = this;
-  //
-  //   //return to allow chain together the call we set up in server.js
-  //   return user.update({  //if match, will remove not just tokenpropert,
-  //                         // but the ENTIRE object (w/ token prop, id) --> lose one from tokens array
-  //     $pull: {
-  //         tokens:{
-  //           token: tokenToDelete
-  //         }
-  //     }
-  //   });
-  //   //call the update method to update the array
-  // };
+ModeledUser.methods.comparePassword = function(plaintext, dbPassword){
+  var user = this;
+  bcrypt.compare(plaintext, dbPassword, (err, result)=>{
+    console.log('\n\n\nResult of comparing password: ', result);
+  });
+}
+ModeledUser.pre('save',function(next){
+  var user = this;
+  if(user.isModified('password')){
+    bcrypt.genSalt(10, (err, salt)=>{
+      bcrypt.hash(user.password, salt, (err, hash)=>{
+        user.password = hash;
+        next();
+      });
+    });
+  }else{
+    next();
+  }
+});
 
 var User = mongoose.model('User', ModeledUser);
 

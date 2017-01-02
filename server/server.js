@@ -3,6 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 // path we want to provide to the public express middleware
 const publicPath = path.join(__dirname, '../public');
 const port = process.env.PORT || 3000;
@@ -34,8 +35,14 @@ io.on('connection', (socket)=>{
     users.emailExists(em).then((docs)=>{
       if(docs === false) return callback('ADD');
       console.log('Docs returned from DB email search: ', docs);
-      var returnedPassword = jwt.verify(docs.password, 'secretValue');
-      console.log('token from DB password :', returnedPassword);
+      // var returnedPassword = jwt.verify(docs.password, 'secretValue');
+      // console.log('token from DB password :', returnedPassword);
+
+      var returnedPassword = docs.password;
+      bcrypt.compare(params.password, docs.password, (err, result)=>{
+        console.log('\n\n\nResult of comparing password: ', result);
+        if(result) console.log('\n\n Email AND HASHED password matched\n');
+      });
       if(returnedPassword === params.password){
         console.log('\n\n Email AND HASHED password matched\n');
       }
@@ -46,7 +53,8 @@ io.on('connection', (socket)=>{
   socket.on('registerUser', function(params, callback){
     console.log('...Client --> Server addUser...');
     var email = params.email.toUpperCase();
-    var ptoken = jwt.sign(params.password, 'secretValue');
+    // var ptoken = jwt.sign(params.password, 'secretValue');
+    var ptoken = params.password;
     console.log('ADD USER (password ptoken) created: ', ptoken);
     var newUser = users.addUser(email, ptoken);
     newUser.then((token)=>{
