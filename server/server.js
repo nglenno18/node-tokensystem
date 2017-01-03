@@ -57,15 +57,8 @@ io.on('connection', (socket)=>{
         if(result){
           console.log('\n\n Email AND HASHED password matched\n');
           callback();
-        }
+        }else return callback('Password does not match that Email Account')
       });
-
-      // var returnedPassword = jwt.verify(docs.password, 'secretValue');
-      // console.log('token from DB password :', returnedPassword);
-      // if(returnedPassword === params.password){
-      //   console.log('\n\n Email AND HASHED password matched\n');
-      // }
-      // return callback('Next');
     });
 
   });
@@ -79,6 +72,8 @@ io.on('connection', (socket)=>{
     newUser.then((token)=>{
       console.log(`New user added, new token `, token);
       callback(token);
+    }).catch((e)=>{
+      console.log('Error returned to server, should send back to client', e);
     });
   });
 

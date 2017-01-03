@@ -57,5 +57,5 @@ jQuery('#register-form').on('submit', function(e){
   var email = jQuery('[name=email]').val();
   var password = jQuery('[name=password]').val();
   var params = {email, password};
-  window.location.href = '/register';
+  window.location.href = '/register.html';
 });

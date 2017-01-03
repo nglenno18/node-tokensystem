@@ -35,6 +35,9 @@ class Users {
     return newUser.then((saved)=>{
       console.log('\nfromAddUserMethod:: \t', saved);
       return saved;
+    }).catch(function(e){
+      console.log('ERROR adding User: ', e.message);
+      return e.message;
     });
   }
   // addUser(email, password){
