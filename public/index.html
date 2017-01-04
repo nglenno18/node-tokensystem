@@ -4,9 +4,10 @@
 <head>
   <meta charset="utf-8">
 </head>
-
+<style>
+.highlight{border-color: red}
+</style>
 <body>
-  <p>If you're here, I'm not sure why. I'm just practicing implementing web tokens</p>
   <div class="centered-form__form">
     <form id= "login-form" action="/join.html">
       <div class="form-field">
@@ -14,18 +15,18 @@
       </div>
       <div class="form-field">
         <label>Email</label>
-        <input type="text" name="email" autofocus/>
+        <input id="email-text" type="text" name="email" autofocus/>
       </div>
       <div class="form-field">
         <label>Password</label>
         <input id="password-text" type="password" name="password"/>
       </div>
       <div class="form-field">
-        <button>LOGIN</button>
+        <button type="submit" action="/join.html">LOGIN</button>
       </div>
     </form>
-    <form id="register-form" action = "/register.html">
-      <button>REGISTER (New User)</button>
+    <form id="register-form" action = "/register.html" method="GET">
+      <input type= "submit" value="REGISTER (New User)"</input>
     </form>
 
   <script src="/socket.io/socket.io.js"></script>

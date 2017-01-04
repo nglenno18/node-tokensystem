@@ -3,7 +3,12 @@ var socket = io();
 socket.on('connect', function(){
   console.log(socket.id);
   console.log(`REGISTER PAGE \n\t CLIENT: ${socket.id}`);
-
+  console.log('PASSED Data', localStorage);
+  var doc = document.getElementById("login-form");
+  var emailField = localStorage.email;
+  jQuery('[name=email]').val(emailField);
+  jQuery('[name=email]').focus();
+  console.log('Document: ', doc);
     jQuery('#register-form').on('submit', function(e){
       e.preventDefault();
       var email = jQuery('[name=email]').val();
@@ -21,47 +26,26 @@ socket.on('connect', function(){
         $("#retype-text").focus();
         return alert('Passwords do not match');
       }
-      // if(password.length < 5 || email.length < 5) return window.location.href = '/register';
       var params = {email, password};
 
-      // socket.emit('validateUser', params, function(err){    //add the acknowledgement
-      //   if(!err){
-      //     console.log('User validated: ');
-      //     return window.location.href = '/join.html';
-      //   }
-      //   if(err ==='ADD'){
-      //     if(confirm(`Register new Email ${params.email}?`)){
-      //       // window.location.href = '/register';
-      //       console.log('Socket will emit "registerUser"');
-      //       var pconfirm = prompt('Please retype password: ');
-      //       if(pconfirm != params.password){
-      //         alert('Passwords DO NOT MATCH!, please try again');
-      //         return window.location.href = '/';
-      //       }
-      //       socket.emit('registerUser', params, function(es){
-      //         console.log('Returned from addUser in server to client:', es);
-      //         // window.location.href = '/registerUser';
-      //       });
-      //     }
-      //     else window.location.href ='/';
-      //   }else{
-      //     console.log('callback was called', err);
-      //     alert(err);
-      //     window.location.href ='/';
-      //   }
-      // });
       socket.emit('registerUser', params, function(err){
         console.log('emitted the registerUser request');
-        if(!err.email){
+        console.log(err);
+        if(err === 'MongoError'){
           if(confirm('Email is already registered\n Return to Login Page?')){
             return window.location.href = "/";
           }else{
             return window.location.href = "/register.html"
           }
-        }else{
-          console.log('New user was created: ', err);
-          return window.location.href = "/join.html";
+        }else if(!err.email){
+          alert('Email is not Valid');
+          return $("#text").focus();
         }
+        console.log('New user was created: ', err);
+        console.log('\t params that created that user: ', params);
+        localStorage.setItem('email', params.email);
+        //login the user, provide tokens!!!!! socket.emit('login')
+        return window.location.href = "/join.html";
       });
     });
 });

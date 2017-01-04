@@ -2,6 +2,15 @@ var socket = io();
 var template = jQuery('#open-rooms-template').html();
 const noMessage = 'No Available Chat Rooms';
 
+var localEmail = localStorage.email;
+
+socket.on('connection', function(){
+  console.log(localStorage);
+
+  jQuery('[name=name]').val(localStorage.email.substring(0, localEmail.indexOf('@')).value);
+  console.log(localStorage);
+});
+
 jQuery('#open-rooms-template').on('submit', function(eventArgument){
   eventArgument.preventDefault();   //stop the submit event from firing, now nothing happens
   var comboBox = jQuery('[name=chatrooms]');

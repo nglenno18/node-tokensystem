@@ -4,52 +4,73 @@ socket.on('connect', function(){
   console.log(socket.id);
   console.log(`NEW CONNECTION (this message was sent from index.html) \n\t CLIENT: ${socket.id}`);
 
-  // socket.emit('createEmail', {to: "julie@sdf.com", text: "event emitted from browser console"});
-        //^^can be entered through the browser console to the server console
-  //CHALLENGE createMessage
-  //user1 fires createMessage event from my browser
-      //to SERVER --> server fires newMessage events to everyone else
 });
 
 socket.on('disconnect', function(){
+  localStorage.clear();
   console.log(`CLIENT: ${socket.id} --> DISCONNECTED from Server`);
 });
 
 jQuery('#login-form').on('submit', function(e){
   e.preventDefault();
   console.log('CLIENT submitted Email credentials to SERVER');
-  var password = jQuery('[name=password]').val()
+  var jQpassword = jQuery('[name=password]');
+  var jQemail= jQuery('[name=email]');
   var params = {
-    email: jQuery('[name=email]').val(),
-    password: jQuery('[name=password]').val()
+    email: jQemail.val(),
+    password: jQpassword.val()
   };
-
   socket.emit('validateUser', params, function(err){    //add the acknowledgement
     if(!err){
       console.log('User validated: ');
-      return window.location.href = '/join.html';
+
+      console.log(localStorage.setItem('email', params.email));
+      return window.location.href = '/join.html'
     }
     if(err ==='ADD'){
       if(confirm(`Register new Email ${params.email}?`)){
-        // window.location.href = '/register';
+        localStorage.setItem('email', document.getElementById('email-text').value);
         console.log('Socket will emit "registerUser"');
         var pconfirm = prompt('Please retype password: ');
         if(pconfirm != params.password){
           alert('Passwords DO NOT MATCH!, please try again');
-          return window.location.href = '/';
+          console.log(document);
+          console.log(localStorage);
+          return window.location.href = '/register.html';
         }
         socket.emit('registerUser', params, function(es){
-          console.log('Returned from addUser in server to client:', es);
-          // window.location.href = '/registerUser';
+          if(es._id){
+            console.log('Returned from addUser in server to client:', es);
+            //login the user!!!! retrieve tokens
+            return window.location.href = '/join.html';
+          }
+          return invalidEmail();
         });
       }
       else window.location.href ='/';
     }else{
       console.log('callback was called', err);
-      alert(err);
-      window.location.href ='/';
+      if(err === 'INVALID EMAIL REQUEST'){
+        return invalidEmail();
+      }else{  //password problem
+        return invalidPassword();
+      }
     }
   });
+
+  var invalidEmail = function(){
+    alert('INVALID EMAIL REQUEST');
+    jQpassword.removeClass("highlight");
+    jQemail.focus();
+    return jQemail.addClass("highlight");
+  }
+  var invalidPassword = function(){
+    alert('Invalid Password')
+    jQemail.removeClass("highlight");
+    jQpassword.val('');
+    console.log(jQpassword.addClass("highlight"));
+    return jQpassword.focus();
+  }
 });
 
 jQuery('#register-form').on('submit', function(e){

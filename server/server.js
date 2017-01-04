@@ -30,12 +30,14 @@ app.get('/accounts', function(request, response){
   });
   // response.render('/register.html');
 });
-app.get('/joinRoom', function(request, response){
-  console.log('APP. GET /accounts route: ');
+app.get('/register.html', function(request, response){
+  console.log('\n\n\nAPP. GET /accounts route: ');
   // console.log('[request] = ', request);
   // console.log('[response] = ', response);
-
+  return response.send('regisiter.html GET from SERVER');
 });
+
+
 io.on('connection', (socket)=>{
   console.log(`New user connected:  \n\t(socket.id):${socket.id}\n`);
 
@@ -47,6 +49,7 @@ io.on('connection', (socket)=>{
       console.log('ALERT USER to retry email request');
       return callback('INVALID EMAIL REQUEST');
     }
+    if(params.password.length < 5) {callback('Password must be at least 5 characters');}
     users.emailExists(em).then((docs)=>{
       if(docs === false) return callback('ADD');
       console.log('Docs returned from DB email search: ', docs);
@@ -65,7 +68,6 @@ io.on('connection', (socket)=>{
   socket.on('registerUser', function(params, callback){
     console.log('...Client --> Server addUser...');
     var email = params.email.toUpperCase();
-    // var ptoken = jwt.sign(params.password, 'secretValue');
     var ptoken = params.password;
     console.log('ADD USER (password ptoken) created: ', ptoken);
     var newUser = users.addUser(email, ptoken);
@@ -75,6 +77,14 @@ io.on('connection', (socket)=>{
     }).catch((e)=>{
       console.log('Error returned to server, should send back to client', e);
     });
+  });
+
+
+  socket.on('login', function(email, callback){
+    console.log('LOGIN method called in server...', email);
+    console.log(socket);
+    // callback(socket);
+    callback();
   });
 
   socket.on('disconnect', ()=>{

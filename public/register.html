@@ -7,11 +7,11 @@
 </head>
 
 <body>
-  <form id= "register-form">
+  <form id= "register-form" action="/index.html">
     <div class="form-field">
       <h3>Register New User</h3>
     </div>
-    <div class="form-field">
+    <div class="email-field">
       <label>Email</label>
       <input type="text" name="email" autofocus/>
     </div>
@@ -23,21 +23,12 @@
       <label>re-type Password</label>
       <input id="retype-text" type="password" name="retype"/>
     </div>
-    <div class="register-form">
-      <button>REGISTER</button>
+    <div class="button-form">
+      <input type="submit" value="REGISTER"></input>
     </div>
   </form>
   <script src="/socket.io/socket.io.js"></script>
   <script src = "/js/libs/jquery-3.1.1.min.js"></script>
-  <script src = "/js/register.js">
-    // var socket = io();
-    //
-    // socket.on('connect', ()=>{
-    //   console.log('Connected to the SERVER');
-    // });
-    // socket.on('disconnect', ()=>{
-    //   console.log('Disconnected from the SERVER');
-    // });
-  </script>
+  <script src = "/js/register.js"></script>
 </body>
 </html>
