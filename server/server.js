@@ -59,7 +59,10 @@ io.on('connection', (socket)=>{
         console.log('\n\n\nResult of comparing password: ', result);
         if(result){
           console.log('\n\n Email AND HASHED password matched\n');
-          callback();
+          docs.generateToken().then((token)=>{
+            console.log(`\n${docs.email} generatedToken: ${token}\n`);
+            callback(null, token);
+          });
         }else return callback('Password does not match that Email Account')
       });
     });
@@ -83,8 +86,9 @@ io.on('connection', (socket)=>{
   socket.on('login', function(email, callback){
     console.log('LOGIN method called in server...', email);
     console.log(socket);
+
     // callback(socket);
-    callback();
+    // callback();
   });
 
   socket.on('disconnect', ()=>{

@@ -20,16 +20,17 @@ jQuery('#login-form').on('submit', function(e){
     email: jQemail.val(),
     password: jQpassword.val()
   };
-  socket.emit('validateUser', params, function(err){    //add the acknowledgement
+  socket.emit('validateUser', params, function(err, token){    //add the acknowledgement
     if(!err){
       console.log('User validated: ');
 
-      console.log(localStorage.setItem('email', params.email));
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('email', params.email);
       return window.location.href = '/join.html'
     }
     if(err ==='ADD'){
       if(confirm(`Register new Email ${params.email}?`)){
-        localStorage.setItem('email', document.getElementById('email-text').value);
+        sessionStorage.setItem('email', document.getElementById('email-text').value);
         console.log('Socket will emit "registerUser"');
         var pconfirm = prompt('Please retype password: ');
         if(pconfirm != params.password){
@@ -42,7 +43,15 @@ jQuery('#login-form').on('submit', function(e){
           if(es._id){
             console.log('Returned from addUser in server to client:', es);
             //login the user!!!! retrieve tokens
-            return window.location.href = '/join.html';
+            return socket.emit('validateUser', params, function(err, token){
+              if(!err){
+                console.log('User validated: ');
+
+                sessionStorage.setItem('token', token);
+                sessionStorage.setItem('email', params.email);
+                return window.location.href = '/join.html'
+              }
+            });
           }
           return invalidEmail();
         });

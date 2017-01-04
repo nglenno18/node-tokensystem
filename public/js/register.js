@@ -14,7 +14,9 @@ socket.on('connect', function(){
       var email = jQuery('[name=email]').val();
       var password = jQuery('[name=password]').val();
       var retype = jQuery('[name=retype]').val();
-      if(email.indexOf('@') === -1){
+      var at = email.indexOf('@');
+      var dot = email.lastIndexOf('.');
+      if(at === -1 || dot < (at+2)){
         $("#text").focus();
         return alert('Please enter a valid email')
       }
@@ -43,9 +45,17 @@ socket.on('connect', function(){
         }
         console.log('New user was created: ', err);
         console.log('\t params that created that user: ', params);
-        localStorage.setItem('email', params.email);
+        // localStorage.setItem('email', params.email);
         //login the user, provide tokens!!!!! socket.emit('login')
-        return window.location.href = "/join.html";
+        socket.emit('validateUser', params, function(err, token){
+          if(!err){
+            console.log('User validated: ');
+
+            sessionStorage.setItem('token', token);
+            sessionStorage.setItem('email', params.email);
+            return window.location.href = '/join.html'
+          }
+        });
       });
     });
 });

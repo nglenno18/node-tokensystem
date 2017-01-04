@@ -4,12 +4,10 @@ const noMessage = 'No Available Chat Rooms';
 
 var localEmail = localStorage.email;
 
-socket.on('connection', function(){
-  console.log(localStorage);
-
-  jQuery('[name=name]').val(localStorage.email.substring(0, localEmail.indexOf('@')).value);
-  console.log(localStorage);
-});
+console.log(sessionStorage.email.substring(0, sessionStorage.email.indexOf('@')));
+jQuery('[name=name]').val(sessionStorage.email.substring(0, sessionStorage.email.indexOf('@')));
+console.log(sessionStorage);
+if(!sessionStorage.token) return window.location.href = "/";
 
 jQuery('#open-rooms-template').on('submit', function(eventArgument){
   eventArgument.preventDefault();   //stop the submit event from firing, now nothing happens
@@ -22,13 +20,6 @@ jQuery('#open-rooms-template').on('submit', function(eventArgument){
     messageTextBox.val('');
   });
 });
-
-// //  <div>
-//     <form id="openrooms-form">
-//       <select id="open-rooms" onclick="addToDropBox()">
-//       </select>
-//     </form>
-//   </div>
 
 socket.on('updateRoomsList', function(rooms){
   console.log('ROOMS List: ', rooms);
