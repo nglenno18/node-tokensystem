@@ -56,6 +56,15 @@ ModeledUser.methods.generateToken = function(){
   //in server--> .then((token)=>{})
 };
 
+ModeledUser.methods.removeToken = function(token){
+  var user = this;
+  return user.update({
+    $pull:{
+      tokens:{token}
+    }
+  });
+};
+
 ModeledUser.statics.findByToken = function(token){
   var User = this;
   var decoded;

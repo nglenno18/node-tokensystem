@@ -40,6 +40,17 @@ class Users {
       return e.message;
     });
   }
+
+  findToken(token){
+    var t = User.findByToken(token);
+    //console.log(t);
+    return t.then((d)=>{
+      if(d){
+        console.log('Docs to Util from model.findByToken:', d);
+        return d;
+      }
+    });
+  }
   // addUser(email, password){
   //   var newUser = new User({email, password}).save();
   //   return newUser.then((saved)=>{

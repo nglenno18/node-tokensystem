@@ -2,12 +2,21 @@ var socket = io();
 var template = jQuery('#open-rooms-template').html();
 const noMessage = 'No Available Chat Rooms';
 
-var localEmail = localStorage.email;
-
-console.log(sessionStorage.email.substring(0, sessionStorage.email.indexOf('@')));
-jQuery('[name=name]').val(sessionStorage.email.substring(0, sessionStorage.email.indexOf('@')));
+if(!sessionStorage.token) window.location.href = "/";
+var email = sessionStorage.email;
+console.log(email.substring(0, email.indexOf('@')));
+jQuery('[name=name]').val(email.substring(0, email.indexOf('@')));
 console.log(sessionStorage);
-if(!sessionStorage.token) return window.location.href = "/";
+
+jQuery('#logout-form').on('submit', function(eventArgument){
+  eventArgument.preventDefault();
+  socket.emit('logout', sessionStorage.token, function(response){
+    console.log('---logout event fired from server, recieved: ', response);
+    sessionStorage.clear();
+    sessionStorage.setItem('email', email);
+    return window.location.href = "/";
+  });
+});
 
 jQuery('#open-rooms-template').on('submit', function(eventArgument){
   eventArgument.preventDefault();   //stop the submit event from firing, now nothing happens

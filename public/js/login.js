@@ -3,7 +3,14 @@ var socket = io();
 socket.on('connect', function(){
   console.log(socket.id);
   console.log(`NEW CONNECTION (this message was sent from index.html) \n\t CLIENT: ${socket.id}`);
-
+  console.log(sessionStorage.token);
+  if(sessionStorage.email) $('[name=email]').val(sessionStorage.email);
+  if(sessionStorage.token){
+    socket.emit('verifyToken', sessionStorage.token, function(d){
+      console.log('-------verifyToken: ', d);
+      if(d) window.location.href = '/join.html';
+    });
+  }
 });
 
 socket.on('disconnect', function(){

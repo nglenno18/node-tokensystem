@@ -82,6 +82,27 @@ io.on('connection', (socket)=>{
     });
   });
 
+  socket.on('verifyToken', function(token, callback){
+    var t = users.findToken(token);
+    console.log('\nSERVER to verifyToken:', t);
+    t.then((docs)=>{
+      console.log('DOCS sent back to Server from verifyToken method:',docs);
+      callback(docs);
+    })
+  });
+
+  socket.on('logout', function(token, callback){
+    var t = users.findToken(token);
+    console.log('\nSERVER to verifyToken:', t);
+    t.then((docs)=>{
+      console.log('DOCS sent back to Server from verifyToken method:',docs);
+      var removedToken = docs.removeToken(token);
+      removedToken.then((d)=>{
+        console.log('Token Removed = ', d);
+        if(d.ok === 1)callback(d);
+      });
+    });
+  });
 
   socket.on('login', function(email, callback){
     console.log('LOGIN method called in server...', email);
@@ -93,6 +114,7 @@ io.on('connection', (socket)=>{
 
   socket.on('disconnect', ()=>{
     console.log(`\nUser (${socket.id}) was DISCONNECTED from server\n`);
+
   });
 });
 
