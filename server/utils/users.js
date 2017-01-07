@@ -28,7 +28,13 @@ class Users {
       return docs;
     });
   }
-
+  clearAll(){
+  return User.remove({}).then((removed, err)=>{
+      if(!removed) return 'ERROR: User DB is Already Clear'
+      console.log(`ALL EMAIL accounts were deleted:`, removed, err);
+      return removed;
+    });
+  }
   addUser(email, password){
     var newUser = new User({email, password}).save();
     return newUser.then((saved)=>{
@@ -51,18 +57,7 @@ class Users {
       }
     });
   }
-  // addUser(email, password){
-  //   var newUser = new User({email, password}).save();
-  //   return newUser.then((saved)=>{
-  //     console.log('\nfromAddUserMethod:: \t', saved);
-  //     console.log('generate a token for the new user');
-  //     return saved.generateToken();
-  //   }).then((token)=>{
-  //     console.log('token', token);
-  //     return token;
-  //   });
-  // }
 
-}
+}//END Users class
 
 module.exports = {Users};

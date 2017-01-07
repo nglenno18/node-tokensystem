@@ -6,41 +6,53 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 // path we want to provide to the public express middleware
 const publicPath = path.join(__dirname, '../public');
+console.log(publicPath);
 const port = process.env.PORT || 3000;
 const {Rooms} = require('./utils/rooms');
 const {Users} = require('./utils/users');
+const {Occupants} = require('./utils/occupants');
+const {Messages, generateMessage, generateLocationMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
+
 var users = new Users();
 var rooms = new Rooms();
-console.log(publicPath);
+var occupants = new Occupants();
+var messages = new Messages();
 var _ = require('lodash');
 var app = express();
 var server = http.createServer(app);  //now using the HTTP server
 //now config server to use socket.io
 var io = socketIO(server);
 
-
 app.use(express.static(publicPath));
 
 app.get('/accounts', function(request, response){
   console.log('APP. GET /accounts route: ');
-  // console.log('[request] = ', request);
-  // console.log('[response] = ', response);
   users.getAccounts().then((d)=>{
     return response.send(d);
   });
   // response.render('/register.html');
 });
-app.get('/register.html', function(request, response){
-  console.log('\n\n\nAPP. GET /accounts route: ');
-  // console.log('[request] = ', request);
-  // console.log('[response] = ', response);
-  return response.send('regisiter.html GET from SERVER');
+app.get('/clear', function(request, response){
+  console.log('APP /clear -->\n\tclearing all DB Accounts...');
+  var r = [];
+  users.clearAll().then((d)=> r.push(d));
+  rooms.clearAll().then((d)=> r.push(d));
+  occupants.clearAll().then((d)=> r.push(d));
+  messages.clearAll().then((d)=>r.push(d));
+  return response.send(r);
 });
+// app.get('/register.html', function(request, response){
+//   console.log('\n\n\nAPP. GET /accounts route: ');
+//   // console.log('[request] = ', request);
+//   // console.log('[response] = ', response);
+//   return response.send('regisiter.html GET from SERVER');
+// });
 
 
 io.on('connection', (socket)=>{
   console.log(`New user connected:  \n\t(socket.id):${socket.id}\n`);
-
+  socket.emit('updateRoomsList', rooms.rooms);
   socket.on('validateUser', function(params, callback){
     console.log('Client has submitted a login request');
     console.log('params: ', params);
@@ -104,17 +116,102 @@ io.on('connection', (socket)=>{
     });
   });
 
-  socket.on('login', function(email, callback){
-    console.log('LOGIN method called in server...', email);
-    console.log(socket);
+  socket.on('join', function(params, email, callback){
+    debugger;
+    //validate data (name and room) --> create new utils file for duplicate code
+    if(!isRealString(params.name) || !isRealString(params.room)){
+      //call the callback with a str message
+      return callback('Name and Room Name are required');
+    }
+    console.log('PARAMS at LOGIN: ', params.name, params.room);
+    console.log('EMAIL ACCOUNT: ', email);
+    var name = params.name;
+    var account = email;
+    var taken = false;
+    debugger;
+    var room = params.room.toUpperCase();
+    taken = occupants.occupants.filter((occ)=> occ.displayName===name && occ.room === room);
+    if(taken.length > 0){ return callback('Display Name already exists in that Chat Room');}
+    console.log(taken);
 
-    // callback(socket);
-    // callback();
+    var boo = rooms.rooms.filter((ro)=> ro.name=== room);
+    if(boo.length === 0){
+      rooms.addRoom(room);
+      socket.emit('updateRoomsList', rooms.rooms);
+    }
+
+    socket.join(room);
+
+    //MAYBE ONLY SAVE BROADCASTED MESSAGES TO THE DB?
+    try{
+      occupants.removeOccupant(socket.id).then((docs)=>{
+        console.log('Docs returned to server from removeOccupant method', docs);
+        rooms.spliceOccupant(room , docs.displayName);
+        io.to(room).emit('updateOccupants', occupants.getOccList(room));
+      });
+    }catch(e){}
+    occupants.addOccupant(socket.id, params.name, room, email).then((docs)=>{
+      console.log('Docs returned to server from addOccupant method', docs);
+      rooms.pushOccupant(room , docs.displayName);
+      io.to(room).emit('updateOccupants', occupants.getOccList(room));
+    });
+
+    var msg = generateMessage(`ADMIN ${port}\n`,
+                      `\tHello, Occupant(${params.name})! \n\tWelcome to the ${room}!`,
+                      undefined,
+                      room);
+    var msg2 =  generateMessage('ADMIN', `${params.name} has joined`,
+                undefined,
+                room);
+    msg.then((docs)=>{
+      console.log('\n\nINTRO MESSAGE generated and returned to Server', docs);
+      socket.emit('newMessage', docs);
+    });
+    msg2.then((docs)=>{
+      console.log('Message generated and returned to Server', docs);
+      socket.broadcast.to(room).emit('newMessage', docs);
+      callback(); //no arg because we set up the first arg to be an error arg in chat.js
+    });
+    // socket.emit('newMessage', msg);
+    // socket.broadcast.to(room).emit('newMessage', msg2);
+    callback(); //no arg because we set up the first arg to be an error arg in chat.js
+  });
+
+
+  socket.on('createMessage', function(createdMessage, callback){
+    var occupant = occupants.getOccupant(socket.id);
+    // occupant = occupant[0];
+    console.log('\n\n\n\n\n\nCreatingMessage in Server from ', occupant);
+    if(!occupant) console.log('\nERROR: occupant was not found?!?!?'); callback();
+    if(!isRealString(createdMessage.text)) callback();
+    var msg = generateMessage(occupant.displayName, createdMessage.text, occupant.id, occupant.room);
+    msg.then((m)=>{
+      console.log('Message should have SAVED and Returned to Server: ', m);
+      rooms.pushMessage(occupant.room, m);
+      // socket.broadcast.to(occupant.room).emit('newMessage', m);
+      io.to(occupant.room).emit('newMessage', m);
+      callback();
+    });
   });
 
   socket.on('disconnect', ()=>{
     console.log(`\nUser (${socket.id}) was DISCONNECTED from server\n`);
-
+    var occupant;
+    try{
+      occupant = occupants.removeOccupant(socket.id).then((docs)=>{
+        console.log('Docs returned to server from removeOccupant method', docs);
+        var room = docs.room;
+        rooms.spliceOccupant(room , docs.displayName);
+        console.log('\n\n\n Room to Emit Disconnect message to: ', room);
+        var mess = generateMessage('ADMIN',
+                        `${docs.displayName} has left the ${room}`, docs.id,
+                        room);
+        io.to(room).emit('updateOccupants', occupants.getOccList(room));
+        mess.then((d)=>{
+          io.to(room).emit('newMessage', d);
+        });
+      });
+    }catch(e){}
   });
 });
 

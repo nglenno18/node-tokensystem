@@ -7,6 +7,14 @@ class Rooms {
   constructor (){
     this.rooms = [];
   }
+  clearAll(){
+  return ModeledRoom.remove({}).then((removed, err)=>{
+      if(!removed) return 'ERROR: Room DB is Already Clear'
+      console.log(`ALL ROOMS accounts were deleted:`, removed, err);
+      return removed;
+    });
+  }
+
   isTaken(name){
     var list = this.rooms.filter((room)=> room.name === name);
     if(list.length > 0) {
@@ -17,9 +25,18 @@ class Rooms {
   pushOccupant(roomName, userName){
     console.log('\n\nUser to be pushed into room  ', roomName);
     var room =
+    ModeledRoom.findOne({roomName:roomName}).then((pushed)=>{
+          console.log('Found in ROOMS DB: ', pushed);
+          pushed.pushOccupant(userName);
+        });
+  }
+  spliceOccupant(roomName, userName){
+    console.log('\n\n Occupant to be REMOVED from room ');
+    var room =
     ModeledRoom.findOne({roomName:roomName}).then((removed)=>{
           console.log('Found in ROOMS DB: ', removed);
-          removed.pushOccupant(userName);
+          var index = removed.occupants.indexOf(userName);
+          removed.spliceOccupant(index);
         });
   }
   pushMessage(roomName, msg){
@@ -129,6 +146,7 @@ class Rooms {
       return r;
     }
   }
-}
+
+}//END ROOMS class
 
 module.exports = {Rooms};
