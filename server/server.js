@@ -206,6 +206,15 @@ io.on('connection', (socket)=>{
     });
   });
 
+  //GEOLOCATION EVENT listener
+  socket.on('createLocationMessage', function(user, coords){
+    console.log(`${user}\n\t`, coords);
+    var occ = occupants.getOccupant(socket.id);
+    console.log('GeoLocation OCCUPANT: ', occ);
+    io.to
+    (occ.room).emit('newLocationMessage', generateLocationMessage(occ.displayName,
+                                                          coords.latitude, coords.longitude));
+  });
   socket.on('disconnect', ()=>{
     console.log(`\nUser (${socket.id}) was DISCONNECTED from server\n`);
     var occupant;
