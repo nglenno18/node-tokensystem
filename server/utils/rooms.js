@@ -37,6 +37,7 @@ class Rooms {
           console.log('Found in ROOMS DB: ', removed);
           var index = removed.occupants.indexOf(userName);
           removed.spliceOccupant(index);
+          console.log('\nOccupant removed');
         });
   }
   pushMessage(roomName, msg){
@@ -81,7 +82,7 @@ class Rooms {
     var gotRoom = this.getRoom(room);
     var userList;
     if(gotRoom != undefined) {
-        userList = getUserList(gotRoom);
+        userList = getOccList(gotRoom);
     }else{
       console.log(room, ' Chat Room does not exist');
     }
@@ -92,24 +93,25 @@ class Rooms {
   ///REMOVE----------------------------------
   removeRoom(name){
     //return the object after you remove it from the list
+    console.log('ALL ROOMS LISTED\t', this.rooms);
     var gotRoom = this.rooms.filter(function(ro){
-      return ro.name === name.name;
+      return ro.name === name;
     });
     console.log(this.rooms);
     console.log('ROOM to Be REMOVED: ', gotRoom);
     var room;
     if(!gotRoom.length > 0){
-      console.log(`\tChatRoom(${name.name}) NOT FOUND -- could NOT return a ChatRoom`);
+      console.log(`\tChatRoom(${name}) NOT FOUND -- could NOT return a ChatRoom`);
       return undefined;
     }
     room = gotRoom[0];
     var index = this.rooms.indexOf(room);
     console.log(room, index);
-    this.rooms.splice(index, 1);
     var splicedRoom = ModeledRoom.findOne({roomName:room.name}).then((removed)=>{
       console.log('Found in DB: ', removed);
       removed.remove();
     });
+    this.rooms.splice(index, 1);
     console.log(this.rooms);
   }
 

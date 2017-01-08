@@ -53,7 +53,7 @@ class Occupants{
     var occsList = this.occupants.filter(function(occ){
       return occ.room === room;
     });
-    if(!occsList.length>0) console.log(`No Occupants in Chat Room ${room}`);
+    if(!occsList.length>0) return console.log(`No Occupants in Chat Room ${room}`);
     console.log('Occupants List: ', occsList);
     return occsList;
   }

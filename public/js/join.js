@@ -38,7 +38,7 @@ socket.on('updateRoomsList', function(rooms){
     // var html = Mustache.render(template, {
     //   name: room.name
     // });
-    console.log('ROOM trying to be updated: ', room);
+    console.log('ROOM trying to be updated: ', room.name);
     addToDropBox(room.name);
   });
   jQuery('#rooms').html(ol);
@@ -48,12 +48,17 @@ function addToDropBox(room){
   var x = document.getElementById("open-rooms");
   var option = document.createElement("option");
   option.text = room;
-  console.log('ROOM trying to be updated: ', option);
-  x.add(option);
+  console.log('ROOM to add to DropBox: ', option);
+  x.add(option)
   if(room != noMessage){
-    var option = document.createElement("option");
-    option.text = noMessage;
-    x.remove(option);
+    $('#open-rooms option').each(function(){
+      if(this.value === noMessage){
+        var noopt = document.createElement("option");
+        noopt.text = noMessage;
+        x.remove(noopt);
+      }
+    });
+    // x.remove(option);
   }
 }
 

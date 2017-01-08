@@ -27,10 +27,12 @@ var io = socketIO(server);
 
 var updateRooms = function(){
   rooms.rooms.forEach(function(r){
+    console.log('...starting updatingRooms() function', rooms.rooms);
     var listed = occupants.getOccList(r.name);
-    console.log(`Occupants listed in ${r.name}: `, listed);
-    if(listed){
-      if(listed.length === 0) return rooms.removeRoom(r);
+    console.log(`Users listed in ${r.name}: `, listed);
+    if(listed === undefined) {
+      console.log('\n\nREMOVE THE ROOM FROM THE DB');
+      rooms.removeRoom(r.name);
     }
   });
 }
@@ -225,6 +227,8 @@ io.on('connection', (socket)=>{
     (occ.room).emit('newLocationMessage', generateLocationMessage(occ.displayName,
                                                           coords.latitude, coords.longitude));
   });
+
+
   socket.on('disconnect', ()=>{
     console.log(`\nUser (${socket.id}) was DISCONNECTED from server\n`);
     var occupant;
@@ -237,6 +241,7 @@ io.on('connection', (socket)=>{
         var mess = generateMessage('ADMIN',
                         `${docs.displayName} has left the ${room}`, docs.id,
                         room);
+        console.log('ROOM : ', room);
         io.to(room).emit('updateOccupants', occupants.getOccList(room));
         mess.then((d)=>{
           io.to(room).emit('newMessage', d);
@@ -244,6 +249,7 @@ io.on('connection', (socket)=>{
       });
     }catch(e){}
     updateRooms();
+    socket.emit('updateRoomsList', rooms.rooms);
   });
 });
 

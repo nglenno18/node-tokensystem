@@ -9,7 +9,7 @@ var RoomSchema = new mongoose.Schema({
     minlength: 2,
     unique: true
   },
-  occupants: [{type : String, unique: true }],
+  occupants: [{type : String, unique: true, required:true }],
   messages: []
 });
 
@@ -23,8 +23,9 @@ RoomSchema.methods.pushOccupant = function(displayName){
 RoomSchema.methods.spliceOccupant = function(index){
   var room = this;
   // var roomObject = user.toObject();
-  console.log(`\n SPLICING Occupant (${index} into ROOM: ${room.roomName})`);
+  console.log(`\n SPLICING Occupant (${index} out of ROOM: ${room.roomName})`);
   room.occupants.splice(index, 1);
+  console.log('\n\nSpliced: ', room.occupants);
   room.save();
 };
 
