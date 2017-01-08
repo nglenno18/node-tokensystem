@@ -116,17 +116,20 @@ io.on('connection', (socket)=>{
     });
   });
 
-  socket.on('join', function(params, email, callback){
+  socket.on('join', function(params, sessionStorage, callback){
     debugger;
     //validate data (name and room) --> create new utils file for duplicate code
     if(!isRealString(params.name) || !isRealString(params.room)){
       //call the callback with a str message
       return callback('Name and Room Name are required');
     }
+
     console.log('PARAMS at LOGIN: ', params.name, params.room);
-    console.log('EMAIL ACCOUNT: ', email);
+    console.log('EMAIL ACCOUNT: ', sessionStorage.email);
+    console.log('SESSIONSTORAGE: ', sessionStorage);
     var name = params.name;
-    var account = email;
+    var account = sessionStorage.email;
+    var token = sessionStorage.token;
     var taken = false;
     debugger;
     var room = params.room.toUpperCase();
@@ -150,13 +153,13 @@ io.on('connection', (socket)=>{
         io.to(room).emit('updateOccupants', occupants.getOccList(room));
       });
     }catch(e){}
-    occupants.addOccupant(socket.id, params.name, room, email).then((docs)=>{
+    occupants.addOccupant(socket.id, params.name, room, account).then((docs)=>{
       console.log('Docs returned to server from addOccupant method', docs);
       rooms.pushOccupant(room , docs.displayName);
       io.to(room).emit('updateOccupants', occupants.getOccList(room));
     });
 
-    var msg = generateMessage(`ADMIN ${port}\n`,
+    var msg = generateMessage(`ADMIN`,
                       `\tHello, Occupant(${params.name})! \n\tWelcome to the ${room}!`,
                       undefined,
                       room);
@@ -177,6 +180,15 @@ io.on('connection', (socket)=>{
     callback(); //no arg because we set up the first arg to be an error arg in chat.js
   });
 
+
+  socket.on('fetchMessages', function(r, callback){
+    console.log('\nstarting fetchMessages request from client\n\nprint & return messages: ', r);
+    var msgs = messages.fetchMessages(r);
+    return msgs.then((docs)=>{
+      console.log('Room Messages fetched: ', docs);
+      callback(docs);
+    });
+  });
 
   socket.on('createMessage', function(createdMessage, callback){
     var occupant = occupants.getOccupant(socket.id);

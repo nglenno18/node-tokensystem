@@ -1,7 +1,10 @@
 //CLIENT-SIDE javascript
 var socket = io();
 var messageForm = jQuery('#messages');
-var messagesDB;
+var stored = [];
+console.log('Stored Messages: ', JSON.stringify(sessionStorage.getItem('messages'), undefined, 2));
+  // console.log('Messages :', sessionStorage.getItem('messages').length);
+// if(sessionStorage.messages) stored = sessionStorage.messages;
 function scrollToBottom(){
   // Selectors
   var messages = jQuery('#messages');
@@ -31,27 +34,57 @@ socket.on('connect', function(){
 
   var params = jQuery.deparam(window.location.search);
 
-  socket.emit('join', params, sessionStorage.email, function(err){
+  socket.emit('join', params, sessionStorage, function(err){
     if(err){
       alert(err);
       window.location.href ='/';
     }else{  //no error
       messageForm= jQuery('#messages').children('li');
       console.log('fetching messages from DB:');
-      messagesDB = socket.emit('fetchMessages', function(dbdata){
-        if(!dbdata) console.log('Error fetching Room messages from the DB', err);
-        console.log('Messsages retrieved from the Room DB', dbdata);
-        return dbdata;
+      socket.emit('fetchMessages', params.room.toUpperCase(), function(result){
+        // if(!dbdata) console.log('Error fetching Room messages from the DB', dbdata);
+        console.log('Messsages retrieved from the Room DB', result);
+        result.forEach((msg)=>{
+          // console.log('Message: ', msg);
+          var formattedTime = moment(msg.completedAt).format('h:mm a');
+          var template = jQuery('#message-template').html();
+          var m = {
+            // text: message.msgBody,
+            text: msg.text,
+            createdAt: formattedTime,
+            from: msg.from
+          }
+          var html = Mustache.render(template,m);
+          // socket.emit('updateMessages', message);
+          socket.emit('updateMessages', m);
+          jQuery('#messages').append(html);
+        });
+        return result;
       });
-      console.log(messageForm);
+
+      // console.log(messageForm);
       // console.log(jQuery('#messages').children('li'));
       // console.log(jQuery('#messages').children('li')[0].children[1].innerText);
-      console.log(messageForm);
-      console.log(jQuery('#messages').children('li'));
-      // console.log(jQuery('#messages').children('li')[0].children[1].innerText);
+      // console.log(messageForm);
+      // console.log(jQuery('#messages').children('li.message'));
+      
+      scrollToBottom();
       console.log('No ERROR');
     }
   });
+
+
+  var sortItems = function() {
+    var $items = $('#messages li');
+    $items.sort(function(a, b) {
+        var keyA = $(a).data('value');
+        var keyB = $(b).data('value');
+        return (keyA > keyB) ? 1 : 0;
+    });
+    $.each($items, function(index, row){
+        $('ol').append(row);
+    });
+}
 });
 
 //NEW LISTENER --> Update the User List
@@ -79,6 +112,13 @@ socket.on('newMessage', function(message){
   // socket.emit('updateMessages', message);
   socket.emit('updateMessages', m);
   jQuery('#messages').append(html);
+  // sessionStorage.messages.push(m);
+  // $('#li.message').toArray().forEach((doc)=>{
+  //   console.log('Message Queried: ', doc);
+  // });
+  console.log('sessionStorage ', sessionStorage);
+  // stored.push(m);
+  // sessionStorage.messages = stored;
   scrollToBottom();
 });
 

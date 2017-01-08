@@ -21,7 +21,6 @@ jQuery('#logout-form').on('submit', function(eventArgument){
 jQuery('#open-rooms-template').on('submit', function(eventArgument){
   eventArgument.preventDefault();   //stop the submit event from firing, now nothing happens
   var comboBox = jQuery('[name=chatrooms]');
-
   socket.emit('createMessage', {
     //from: `User ${socket.id}`,
     text: messageTextBox.val()

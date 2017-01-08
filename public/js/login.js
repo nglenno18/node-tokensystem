@@ -33,6 +33,7 @@ jQuery('#login-form').on('submit', function(e){
 
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('email', params.email);
+      sessionStorage.setItem('messages', []);
       return window.location.href = '/join.html'
     }
     if(err ==='ADD'){

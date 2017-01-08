@@ -12,6 +12,12 @@ class Messages{
       return removed;
     });
   }
+  fetchMessages(room){
+    return ModeledMessage.find({_home:room, from:{$ne:'ADMIN'}}).then((docs)=>{
+      console.log(`All messages from ROOM : \n${room}: \n${docs}`);
+      return docs;
+    });
+  }
 }
 
 var generateMessage = function(from, text, creator, room){
