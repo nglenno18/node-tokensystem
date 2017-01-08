@@ -24,6 +24,16 @@ var server = http.createServer(app);  //now using the HTTP server
 //now config server to use socket.io
 var io = socketIO(server);
 
+
+var updateRooms = function(){
+  rooms.rooms.forEach(function(r){
+    var listed = occupants.getOccList(r.name);
+    console.log(`Occupants listed in ${r.name}: `, listed);
+    if(listed){
+      if(listed.length === 0) return rooms.removeRoom(r);
+    }
+  });
+}
 app.use(express.static(publicPath));
 
 app.get('/accounts', function(request, response){
@@ -233,6 +243,7 @@ io.on('connection', (socket)=>{
         });
       });
     }catch(e){}
+    updateRooms();
   });
 });
 
