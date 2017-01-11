@@ -31,9 +31,9 @@ class Rooms {
         });
   }
   spliceOccupant(roomName, userName){
-    console.log('\n\n Occupant to be REMOVED from room ');
+    console.log('\n\n Occupant to be REMOVED from room ', roomName);
     var room =
-    ModeledRoom.findOne({roomName:roomName}).then((removed)=>{
+    ModeledRoom.findOne({roomName}).then((removed)=>{
           console.log('Found in ROOMS DB: ', removed);
           var index = removed.occupants.indexOf(userName);
           removed.spliceOccupant(index);

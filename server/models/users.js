@@ -42,12 +42,12 @@ ModeledUser.methods.toJSON = function(){
   //import lodash --> need to use pick method to pick which data is returned to user
   return _.pick(userObject, ['_id', 'email']);
 };
-ModeledUser.methods.generateToken = function(){
+ModeledUser.methods.generateToken = function(token){
   var user = this;
 
   var access = 'auth';
   //generate token
-  var token = jwt.sign({_id:user._id.toHexString(), access}, 'secretssecrets').toString();
+  if(token.length < 2) token = jwt.sign({_id:user._id.toHexString(), access}, 'secretssecrets').toString();
   //update array
   user.tokens.push({access, token});
   return user.save().then(()=>{ //returning a value as success arg for the next then call
@@ -56,11 +56,30 @@ ModeledUser.methods.generateToken = function(){
   //in server--> .then((token)=>{})
 };
 
-ModeledUser.methods.removeToken = function(token){
+ModeledUser.methods.logout = function(token){
   var user = this;
   return user.update({
     $pull:{
       tokens:{token}
+    }
+  });
+}
+ModeledUser.methods.removeToken = function(token){
+  // var user = this;
+  // return user.update({
+  //   $pull:{
+  //     tokens:{token}
+  //   }
+  // });
+  var user = this;
+  console.log('\n\nMODELEDUSER to pull token: ', token);
+  user.tokens.forEach(function(t){
+    console.log('TOKENID: ', t._id);
+    console.log('MODELEDUSER PULLED TOKEN : ', user);
+    if(t.token === token){
+      console.log('USER PULL TOKEN: ', user.tokens);
+      user.tokens.splice(user.tokens.indexOf(token), 1);
+      return user.save();
     }
   });
 };
@@ -72,11 +91,12 @@ ModeledUser.statics.findByToken = function(token){
   try{
     decoded = jwt.verify(token, 'secretssecrets');
   }catch(e){
+    console.log('USER NOT FOUND BY TOKEN', token);
     return Promise.reject();
   }
   return User.findOne({
     _id: decoded._id,
-    'tokens.token':token,
+    'tokens.token': token,
     'tokens.access': 'auth'
   });
 };

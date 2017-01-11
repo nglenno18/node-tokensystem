@@ -1,0 +1,42 @@
+  (1) JOIN.JS --> client disconnect should remove token from user, return token on connect EVENT
+                - Basically, like the chat.js, a refresh will temporarily remove the auth token
+  (2) CHAT.JS --> the 'PEOPLE' side_bar should be dynamic (no need to refresh to update)
+                - Room's occupants are being duplicated if page is refreshed enough
+                - Room's occupants list needs to be dynamic, no need to refresh
+  (3) JOIN.JS --> the 'ROOMS' side_bar should be dynamic (no need to refresh to update)
+
+
+Push the TOKEN
+try{
+  occupants.removeOccupant(socket.id).then((docs)=>{
+    console.log('Docs returned to server from removeOccupant method', docs);
+    rooms.spliceOccupant(room , docs.displayName);
+    io.to(room).emit('updateOccupants', occupants.getOccList(room));
+  });
+}catch(e){}
+occupants.addOccupant(socket.id, params.name, room, account, token).then((docs)=>{
+  console.log('Docs returned to server from addOccupant method', docs);
+  rooms.pushOccupant(room , docs.displayName);
+  //console.log(users.findToken(token));
+  console.log('FIND TOKEN : ', docs.token);
+  users.findToken(docs.token).then((returned)=>{ //WORKS FOR ONE REFRESH!!! neeed to update the sessionStorage!!
+    console.log(`\n\n\n\n\nUSER WITH EXISTING TOKEN: ${docs.token}\n`, returned);
+    io.to(room).emit('updateOccupants', occupants.getOccList(room));
+    if(returned === false){
+      users.emailExists(account.toUpperCase()).then((user)=>{  //method works but does not check for duplicates
+        if(user === false) return 'no EMAIL';
+        //console.log('\n\n\tUSER ACCOUNT returned from DB email search: ', user);
+
+        user.generateToken(docs.token).then((token)=>{
+          console.log(`\n${docs.email} TOKEN ADDED: ${token}\n`);
+          // sessionStorage.setItem('token', token);
+        });
+      });
+    }
+    else{
+      console.log('\n\n\n\n\tusers could not find token\n\n\n');
+    }
+  });
+});
+
+REMOVE THE TOKEN

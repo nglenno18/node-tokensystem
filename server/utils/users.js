@@ -51,10 +51,12 @@ class Users {
     var t = User.findByToken(token);
     //console.log(t);
     return t.then((d)=>{
+      console.log('findToken: ', d);
       if(d){
-        console.log('Docs to Util from model.findByToken:', d);
+        console.log('\n\n\nDocs to Util from model.findByToken:', d);
         return d;
       }
+      return false;
     });
   }
 

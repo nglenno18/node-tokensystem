@@ -14,14 +14,22 @@ class Occupants{
       return removed;
     });
   }
-  addOccupant(id, displayName, room, email){
+
+  getToken(id){
+    var occ = this.getOccupant(id);
+    console.log('\n\n\t......Occupant to get token from.....', id);
+    return occ.token;
+  }
+
+  addOccupant(id, displayName, room, email, token){   //token session only available in local variable occupant
     if(!isRealString(displayName)) return 'Invalid DisplayName';
     if(!isRealString(room)) return 'Invalid Room Request';
-    var occ = {id, displayName, room};
+    var occ = {id, displayName, room, _owner:email, token};
     this.occupants.push(occ);
     var DBocc = new Occupant({id, displayName, room, _owner:email}).save();
     return DBocc.then((doc)=>{
       console.log(`Occupant Saved to DB: ${doc}`);
+      return occ;
       return doc;
     });
     return occ;
@@ -43,6 +51,7 @@ class Occupants{
     return DBocc.then((docs)=>{
       console.log('Occupant REMOVED from DB: ', docs);
       docs.remove();
+      return occ;
       return docs;
     })
     console.log('\nList of Occupants: ', this.occupants);
@@ -59,7 +68,10 @@ class Occupants{
   }
 
   getOccupant(id){
-    return this.occupants.filter((user)=> user.id===id)[0];
+    var occ = this.occupants.filter((user)=> user.id===id)[0];
+    console.log('FIND OCCUpant: ', id);
+    console.log('GoT OCCUpant: ', this.occupants);
+    return occ;
     // var gotOcc = this.occupants.filter(function(user){
     //   return user.id === id;
     // });
